@@ -1,51 +1,43 @@
 const express = require('express');
 const router = express.Router();
 
+// Problem - 1
 
-let players = [ 
-    {
-        "name": "manish",
-        "dob": "1/1/1995",
-        "gender": "male",
-        "city": "jalandhar",
-        "sports": [ "swimming" ]
-    },
+router.get("/sol1", function (req, res) {
+    let arr= [1, 2, 3, 5, 6, 7]
+    let missingNumber
+    
+    ///LOGIC WILL GO HERE
 
-    {
-        "name": "gopal",
-        "dob": "1/09/1995",
-        "gender": "male",
-        "city": "delhi",
-        "sports": [ "soccer" ],
-    },
+    let n = arr.length + 1
+    let actualSumOf_n_Numbers = (n * (n+1))/2 // (7 * 8)/2 = 28
+    let sumOfArr = arr.reduce( (sum , i) => sum + i ) // 24
+    
+    missingNumber = actualSumOf_n_Numbers - sumOfArr  // 28 - 24 = 4
 
-    {
-        "name": "lokesh",
-        "dob": "1/1/1990",
-        "gender": "male",
-        "city": "mumbai",
-        "sports": [ "soccer" ],
-    }
-]
+    res.send( { data: missingNumber } );
+});
 
 
-router.post('/players', function (req, res) {
+// Problem - 2
 
-//LOGIC WILL COME HERE
+router.get("/sol2", function (req, res) {
+    let arr= [33, 34, 35, 37, 38]
+    let missingNumber
 
-let name = req.body.name
-let dob = req.body.dob
-let gender = req.body.gender
-let city = req.body.city
-let sports = new Array(req.body.sports)
+    ///LOGIC WILL GO HERE
 
-for (let i = 0 ; i < players.length ; i++) {
-if (name == players[i].name) {
-    return res.send("Player name already exist")
-}
-}
-players.push({name , dob , gender , city , sports})
-res.send(  { data: players , status: true }  )
-})
+    let n = arr.length + 1
+    let firstElement = arr[0]
+    let lastElement = arr[arr.length - 1]
+
+    let actualSumOf_n_Numbers = (n * (firstElement + lastElement))/2 // (6 * 71)/2 = 213
+    let sumOfArr = arr.reduce( (sum , i) => sum + i ) // 177
+
+    missingNumber = actualSumOf_n_Numbers - sumOfArr // 213 -177 = 36
+
+    res.send( { data: missingNumber } );
+    });
+
 
 module.exports = router;
