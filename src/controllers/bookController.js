@@ -1,59 +1,91 @@
 const { count } = require("console")
 const BookModel= require("../models/bookModel")
+const AuthorModel= require("../models/authorModel")
+
+// Create Book Function
 
 const createBook= async function (req, res) {
     let data= req.body
+    let id= req.body.author_id
+
+    let idCheck= await BookModel.findOne( { author_id : { $eq: id } } )
+
+    if(idCheck) {
+        return res.send({msg: "ID already exist"})
+    }
 
     let savedData= await BookModel.create(data)
     res.send({msg: savedData})
 }
 
-const getBooksData= async function (req, res) {
-    let allBooks= await BookModel.find( {authorName : "HO" } )
-    console.log(allBooks)
-    if (allBooks.length > 0 )  res.send({msg: allBooks, condition: true})
-    else res.send({msg: "No books found" , condition: false})
+// Create Author Function
+
+const createAuthor= async function (req, res) {
+    let data= req.body
+    let id= req.body.author_id
+
+    let idCheck= await AuthorModel.findOne( { author_id : { $eq: id } } )
+
+    if(idCheck) {
+        return res.send({msg: "ID already exist"})
+    }
+
+    let savedData= await AuthorModel.create(data)
+    res.send({msg: savedData})
 }
 
+// Get all Books written by any Author name
 
-const updateBooks= async function (req, res) {
-    let data = req.body // {sales: "1200"}
-    // let allBooks= await BookModel.updateMany( 
-    //     { author: "SK"} , //condition
-    //     { $set: data } //update in data
-    //  )
-    let allBooks= await BookModel.findOneAndUpdate( 
-        { authorName: "ABC"} , //condition
-        { $set: data }, //update in data
-        { new: true , upsert: true} ,// new: true - will give you back the updated document // Upsert: it finds and updates the document but if the doc is not found(i.e it does not exist) then it creates a new document i.e UPdate Or inSERT  
-     )
-     
-     res.send( { msg: allBooks})
+const getBooksOfAuthor= async function (req, res) {
+    let author= req.body.author
+
+    let findId= await AuthorModel.findOne( { author_name : "Chetan Bhagat" } )
+    
+    let allBooksOfAuthor = await BookModel.find( { author_id : { $eq: findId.author_id } } )
+
+    res.send({msg: allBooksOfAuthor})
 }
 
-const deleteBooks= async function (req, res) {
-    // let data = req.body 
-    let allBooks= await BookModel.updateMany( 
-        { authorName: "FI"} , //condition
-        { $set: {isDeleted: true} }, //update in data
-        { new: true } ,
-     )
-     
-     res.send( { msg: allBooks})
+// 
+
+const findPriceAndUpdate= async function (req, res) {
+
+    let findId= await BookModel.findOne( { name : "Two states" } )
+    let id = findId.author_id
+
+    let updatedPrice= await BookModel.findOneAndUpdate( { name : "Two states" } , { price : 100 } ).select( {price : 1 , _id : 0} )
+
+    let newData= await AuthorModel.findOne( { author_id : { $eq: id } } ).select( { author_name : 1 , _id : 0} )
+
+    res.send({AuthorName : newData.author_name , Price : updatedPrice.price })
 }
 
+// 4th task
 
+const priceRange= async function (req, res) {
 
+    let rangedData= await BookModel.find( { price : { $gte : 50 , $lte : 100 } } ).select({ author_id : 1 , name : 1 , _id : 0 })
 
-// CRUD OPERATIONS:
-// CREATE
-// READ
-// UPDATE
-// DELETE
+    let id = rangedData.map ( element => element.author_id )
+
+    let AuthorName= await AuthorModel.find( { author_id : { $in : id } } )
+
+    rangedData.forEach( book => {
+
+        let author1 = AuthorName.find( author => book.author_id === author.author_id )
+        console.log(author1)
+
+        book.author_id = author1.author_name
+
+    })
+
+    res.send({msg: rangedData })
+}
 
 
 
 module.exports.createBook= createBook
-module.exports.getBooksData= getBooksData
-module.exports.updateBooks= updateBooks
-module.exports.deleteBooks= deleteBooks
+module.exports.createAuthor= createAuthor
+module.exports.getBooksOfAuthor= getBooksOfAuthor
+module.exports.findPriceAndUpdate= findPriceAndUpdate
+module.exports.priceRange= priceRange
