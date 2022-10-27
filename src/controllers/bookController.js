@@ -34,7 +34,7 @@ const createAuthor= async function (req, res) {
     res.send({msg: savedData})
 }
 
-// Get all Books written by any Author name
+// Get all Books written by Chetan Bhagat
 
 const getBooksOfAuthor= async function (req, res) {
     let author= req.body.author
@@ -46,7 +46,7 @@ const getBooksOfAuthor= async function (req, res) {
     res.send({msg: allBooksOfAuthor})
 }
 
-// 
+// Find book "Two states" and update price to 100 and return author name and updated price as response
 
 const findPriceAndUpdate= async function (req, res) {
 
@@ -60,26 +60,28 @@ const findPriceAndUpdate= async function (req, res) {
     res.send({AuthorName : newData.author_name , Price : updatedPrice.price })
 }
 
-// 4th task
+// Find books between price range 50 - 100 and return book name and author name as response
 
 const priceRange= async function (req, res) {
 
-    let rangedData= await BookModel.find( { price : { $gte : 50 , $lte : 100 } } ).select({ author_id : 1 , name : 1 , _id : 0 })
+    let bookList= await BookModel.find( { price : { $gte : 50 , $lte : 100 } } ).select({ author_id : 1 , name : 1 , _id : 0 })
+    console.log(bookList)
 
-    let id = rangedData.map ( element => element.author_id )
+    let id = bookList.map ( book => book.author_id )
+    // console.log(id)
 
-    let AuthorName= await AuthorModel.find( { author_id : { $in : id } } )
+    let AuthorName= await AuthorModel.find( { author_id : { $in : id } } ).select({ author_id : 1 , author_name : 1, _id : 0 })
+    // console.log(AuthorName)
 
-    rangedData.forEach( book => {
+    bookList.forEach( book => {
 
-        let author1 = AuthorName.find( author => book.author_id === author.author_id )
-        console.log(author1)
+        let author = AuthorName.find( author => book.author_id === author.author_id )
+        console.log(author)        
 
-        book.author_id = author1.author_name
-
+        book.author_id = author.author_name
+        
     })
-
-    res.send({msg: rangedData })
+    res.send({msg: bookList })
 }
 
 

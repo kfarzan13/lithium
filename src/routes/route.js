@@ -19,21 +19,13 @@ router.post("/createAuthor", BookController.createAuthor  )
 
 router.get("/getBooks" , BookController.getBooksOfAuthor )
 
+// API to find book "Two states" and update price to 100 and return author name and updated price as response
 
 router.get("/getUpdate" , BookController.findPriceAndUpdate )
 
+// Find books between price range 50 - 100 and return book name and author name as response
 
 router.get("/getRange" , BookController.priceRange )
-
-// router.get("/getUsersData", UserController.getUsersData)
-
-// router.post("/createBook", BookController.createBook  )
-
-// router.get("/getBooksData", BookController.getBooksData)
-
-// router.post("/updateBooks", BookController.updateBooks)
-// router.post("/deleteBooks", BookController.deleteBooks)
-
 
 
 module.exports = router;
