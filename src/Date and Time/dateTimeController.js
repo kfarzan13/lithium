@@ -1,4 +1,5 @@
 const dateObject = new Date();
+console.log(dateObject)
 // current date
 const date = (`${dateObject.getDate()}`);
  
@@ -18,9 +19,9 @@ const minutes = dateObject.getMinutes();
 const seconds = dateObject.getSeconds();
  
 // prints date & time in YYYY-MM-DD HH:MM:SS format
-const timeStamp = `${year}-${month}-${date} ${hours}:${minutes}:${seconds}`
+const getDateTime = `${year}-${month}-${date} ${hours}:${minutes}:${seconds}`
 
 
-module.exports.timeStamp = timeStamp
+module.exports.getDateTime = getDateTime
 
 

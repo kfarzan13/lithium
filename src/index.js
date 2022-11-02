@@ -18,13 +18,9 @@ mongoose.connect("mongodb+srv://functionup-cohort:G0Loxqc9wFEGyEeJ@cluster0.rzot
 
 // Global Middleware
 
-// const timeElapsed = Date.now();
-// const today = new Date(timeElapsed);
-
 app.use (
     function (req, res, next) {
-        // console.log (today.toISOString() + " , " + address.ip() + " , " + req.url);
-        console.log(`TimeStamp : ${TimeStamp.timeStamp} , Ip Address - IPV4 : (${address.ip()}) & IPV6 : (${req.ip}) , Route : ${req.url}`)
+        console.log(`TimeStamp : ${TimeStamp.getDateTime} , Ip Address - IPV4 : (${req.ip}) & IPV6 : (${address.ip()}) , Route : ${req.url}`)
         next();
   }
   );
