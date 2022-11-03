@@ -1,48 +1,51 @@
+const OrderModel= require("../models/orderModel")
+const ProductModel= require("../models/productModel")
+const UserModel= require("../models/userModel")
 
-const mid1= function ( req, res, next) {
-    req.falana= "hi there. i am adding something new to the req object"
-    console.log("Hi I am a middleware named Mid1")
-    next()
-}
+// Middleware for Header Validation
 
-const mid2= function ( req, res, next) {
-    console.log("Hi I am a middleware named Mid2")
-    next()
-}
-
-const mid3= function ( req, res, next) {
-    console.log("Hi I am a middleware named Mid3")
-    next()
-}
-
-const mid4= function ( req, res, next) {
-    console.log("Hi I am a middleware named Mid4")
-    next()
-}
-
-const myMiddleware = function(req, res, next){
-    req.month = "November"
-    console.log('I am inside a middleware!')
-    next()
-}
-
-const myOtherMiddleware = function(req, res, next){
-    // Setting an attribute 'wantsJson' in request
-    // The header value comparison is done once and
-    // the result can be used directly wherever required.
-    let acceptHeaderValue = req.headers["accept"]
-
-    if(acceptHeaderValue == "application/json") {
-        req.wantsJson = true
-    } else {
-        req.wantsJson = false
+const headerValidation = function(req, res, next){
+    let isFreeAppUser = req.headers["isfreeappuser"]
+    console.log(req.headers)
+    if(!isFreeAppUser){
+        return res.send("Error! Can't proceed, Header is missing.")
     }
+    else{
+        if(req.headers["isfreeappuser"]==='true'){
+            req.body.isFreeAppUser = true
+        }
+        else if(req.headers["isfreeappuser"]==='false' ){
+            req.body.isFreeAppUser = false
+        }
+        next()
+    }
+    
+}
+
+// Middleware for user Id and Product Id validation
+
+const IdValidation = async function(req, res, next){
+    let userId = req.body.userId
+    let productId = req.body.productId
+    let isValidUserId = await UserModel.findById(userId)
+    console.log(isValidUserId)
+    let isValidProductId = await ProductModel.findById(productId)
+    console.log(isValidProductId)
+    if(!userId) {
+        return res.send("UserId is required")
+    }
+    if(!productId) {
+        return res.send("ProductId is required")
+    }
+    if(!isValidUserId) {
+        return res.send("UserId is invalid!")
+    }
+    if(!isValidProductId) {
+        return res.send("ProductId is invalid!")
+    }
+
     next()
 }
 
-module.exports.mid1= mid1
-module.exports.mid2= mid2
-module.exports.mid3= mid3
-module.exports.mid4= mid4
-module.exports.myMiddleware = myMiddleware
-module.exports.myOtherMiddleware = myOtherMiddleware
+module.exports.headerValidation = headerValidation
+module.exports.IdValidation = IdValidation
