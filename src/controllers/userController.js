@@ -4,25 +4,21 @@ const userModel = require("../models/userModel");
 /*
   Read all the comments multiple times to understand why we are doing what we are doing in login api and getUserData api
 */
-const createUser = async function (abcd, xyz) {
-  //You can name the req, res objects anything.
-  //but the first parameter is always the request 
-  //the second parameter is always the response
-  let data = abcd.body;
-  let savedData = await userModel.create(data);
-  console.log(abcd.newAtribute);
-  xyz.send({ msg: savedData });
-};
+const createUser = async function (req, res) {
+  let data = req.body
+  let savedData = await userModel.create(data)
+  res.send({ msg: savedData })
+}
 
 const loginUser = async function (req, res) {
-  let userName = req.body.emailId;
-  let password = req.body.password;
+  let userName = req.body.emailId
+  let password = req.body.password
 
   let user = await userModel.findOne({ emailId: userName, password: password });
   if (!user)
     return res.send({
       status: false,
-      msg: "username or the password is not corerct",
+      msg: "username or password is incorrect",
     });
 
   // Once the login is successful, create the jwt token with sign function
@@ -34,18 +30,18 @@ const loginUser = async function (req, res) {
   let token = jwt.sign(
     {
       userId: user._id.toString(),
-      batch: "thorium",
+      batch: "lithium", 
       organisation: "FunctionUp",
     },
-    "functionup-plutonium-very-very-secret-key"
+    "my-secret-key"
   );
-  res.setHeader("x-auth-token", token);
+  res.setHeader("auth-token", token);
   res.send({ status: true, token: token });
 };
 
 const getUserData = async function (req, res) {
-  let token = req.headers["x-Auth-token"];
-  if (!token) token = req.headers["x-auth-token"];
+  let token = req.headers["Auth-token"];
+  if (!token) token = req.headers["auth-token"];
 
   //If no token is present in the request header return error. This means the user is not logged in.
   if (!token) return res.send({ status: false, msg: "token must be present" });
@@ -61,7 +57,7 @@ const getUserData = async function (req, res) {
   // Decoding requires the secret again. 
   // A token can only be decoded successfully if the same secret was used to create(sign) that token.
   // And because this token is only known to the server, it can be assumed that if a token is decoded at server then this token must have been issued by the same server in past.
-  let decodedToken = jwt.verify(token, "functionup-plutonium-very-very-secret-key");
+  let decodedToken = jwt.verify(token, "my-secret-key");
   if (!decodedToken)
     return res.send({ status: false, msg: "token is invalid" });
 
@@ -77,7 +73,13 @@ const getUserData = async function (req, res) {
 const updateUser = async function (req, res) {
   // Do the same steps here:
   // Check if the token is present
+  let token = req.headers["Auth-token"];
+  if (!token) token = req.headers["auth-token"];
+  if (!token) return res.send({ status: false, msg: "token must be present" });
   // Check if the token present is a valid token
+  let decodedToken = jwt.verify(token, "my-secret-key");
+  if (!decodedToken)
+    return res.send({ status: false, msg: "token is invalid" });
   // Return a different error message in both these cases
 
   let userId = req.params.userId;
@@ -92,7 +94,38 @@ const updateUser = async function (req, res) {
   res.send({ status: updatedUser, data: updatedUser });
 };
 
+const deleteUser = async function (req, res) {
+  // Do the same steps here:
+  // Check if the token is present
+  let token = req.headers["Auth-token"];
+  if (!token) token = req.headers["auth-token"];
+  if (!token) return res.send({ status: false, msg: "token must be present" });
+  // Check if the token present is a valid token
+  let decodedToken = jwt.verify(token, "my-secret-key");
+  if (!decodedToken)
+    return res.send({ status: false, msg: "token is invalid" });
+  // Return a different error message in both these cases
+
+  let userId = req.params.userId;
+  let user = await userModel.findById(userId);
+  //Return an error if no user with the given id exists in the db
+  if (!user) {
+    return res.send("No such user exists");
+  }
+
+  let deletedUser = await userModel.findByIdAndUpdate({_id : userId},{$set: {isDeleted : true}});
+  res.send({ status: true, data: deletedUser });
+};
+
+
+const getData = async function(req,res){
+  let userData = await userModel.find()
+  res.send({msg: userData})
+}
+
 module.exports.createUser = createUser;
 module.exports.getUserData = getUserData;
 module.exports.updateUser = updateUser;
 module.exports.loginUser = loginUser;
+module.exports.deleteUser = deleteUser;
+module.exports.getData = getData;

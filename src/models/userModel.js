@@ -5,14 +5,18 @@ const userSchema = new mongoose.Schema( {
     lastName: String,
     mobile: {
         type: String,
-
-        required: true
+        required: true,
+        unique: true
     },
     emailId: String,
     password: String,
     gender: {
         type: String,
         enum: ["male", "female", "other"]
+    },
+    isDeleted: {
+        type: Boolean,
+        default: false
     },
     age: Number,
 }, { timestamps: true });
