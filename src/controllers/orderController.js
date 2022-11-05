@@ -6,19 +6,18 @@ const UserModel= require("../models/userModel")
 
 const createOrder= async function (req, res) {
     let data = req.body
-    let userId = req.body.userId
-    let productId = req.body.productId
+    let { userId , productId } = req.body
     let currentdate = timestamp().format("DD-MM-YYYY")
     let freeUser = req.headers["isfreeappuser"]
 
-    if(freeUser === "true"){
+    if(freeUser.toLowerCase() === "true"){
         data.amount = 0
         data.isFreeAppUser = true
         data.date = currentdate
         let savedData= await OrderModel.create(data)
         return res.send({msg: savedData})
     }
-    else if (freeUser === "false") {
+    else if (freeUser.toLowerCase() === "false") {
         let userData = await UserModel.findById(userId)
         let userBalance = userData.balance
         let productData = await ProductModel.findById(productId)
@@ -31,6 +30,7 @@ const createOrder= async function (req, res) {
             )
             data.amount = NewBalance
             data.date = currentdate
+            
 
         let savedData= await OrderModel.create(data)
         return res.send({msg: savedData})

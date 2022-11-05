@@ -1,3 +1,4 @@
+const { isValidObjectId } = require("mongoose")
 const OrderModel= require("../models/orderModel")
 const ProductModel= require("../models/productModel")
 const UserModel= require("../models/userModel")
@@ -11,10 +12,10 @@ const headerValidation = function(req, res, next){
         return res.send("Error! Can't proceed, Header is missing.")
     }
     else{
-        if(req.headers["isfreeappuser"]==='true'){
+        if(isFreeAppUser.toLowerCase()==='true'){
             req.body.isFreeAppUser = true
         }
-        else if(req.headers["isfreeappuser"]==='false' ){
+        else if(isFreeAppUser.toLowerCase()==='false' ){
             req.body.isFreeAppUser = false
         }
         next()
@@ -25,21 +26,31 @@ const headerValidation = function(req, res, next){
 // Middleware for user Id and Product Id validation
 
 const IdValidation = async function(req, res, next){
-    let userId = req.body.userId
-    let productId = req.body.productId
-    let isValidUserId = await UserModel.findById(userId)
-    console.log(isValidUserId)
-    let isValidProductId = await ProductModel.findById(productId)
-    console.log(isValidProductId)
+    let { userId , productId } = req.body
+
     if(!userId) {
         return res.send("UserId is required")
     }
+
     if(!productId) {
         return res.send("ProductId is required")
     }
-    if(!isValidUserId) {
+
+    if(!isValidObjectId(userId)){
+        return res.send("userId is not a valid ObjectId")
+    }
+
+    let isValidUserId = await UserModel.findById(userId)
+        if(!isValidUserId) {
         return res.send("UserId is invalid!")
     }
+
+    if(!isValidObjectId(productId)){
+        return res.send("productId is not a valid ObjectId")
+    }
+
+    let isValidProductId = await ProductModel.findById(productId)
+    
     if(!isValidProductId) {
         return res.send("ProductId is invalid!")
     }
